@@ -54,6 +54,12 @@ public interface SingletonBeanRegistry {
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
 	 * @see org.springframework.beans.factory.DisposableBean#destroy
 	 * @see org.springframework.beans.factory.support.BeanDefinitionRegistry#registerBeanDefinition
+	 * 将一个已存在的实例注册为共享的单例，使用该方法注册的单例应当是初始化完成的，在registerSingleton中
+	 * 不会执行任何初始化回调方法(比如InitializingBean的afterPropertiesSet方法)，同样的该实例也不能接受
+	 * 任何销毁回调方法(比如DisposableBean的destory方法)。
+	 * 如果我们需要向一个单例注册初始化(initialization)和销毁(destruction)方法，我们应该在beanFactory中注册
+	 * beanDefinition，而不是注册一个已经实例化的对象。单例注册通常在注册配置阶段，但也可以在运行时注册单例，
+	 * 因此该方法需要使用“同步”，特别是存在懒加载的情况下。
 	 */
 	void registerSingleton(String beanName, Object singletonObject);
 
@@ -69,6 +75,9 @@ public interface SingletonBeanRegistry {
 	 * @param beanName the name of the bean to look for
 	 * @return the registered singleton object, or {@code null} if none found
 	 * @see ConfigurableListableBeanFactory#getBeanDefinition
+	 * 返回指定名称的单例，不会返回没有初始化的单例beanDefinition。
+	 * 该处的beanName必须是正式名，如果是alias则在调用该方法前需要将alias转换成正式名
+	 *（比如ConfigurableListableBeanFactory#getBeanDefinition）
 	 */
 	@Nullable
 	Object getSingleton(String beanName);
@@ -94,6 +103,8 @@ public interface SingletonBeanRegistry {
 	 * @see #registerSingleton
 	 * @see org.springframework.beans.factory.ListableBeanFactory#containsBeanDefinition
 	 * @see org.springframework.beans.factory.BeanFactory#containsBean
+	 * 判断是否存在指定名称的单例，没有初始化的单例beanDefinition同样会返回false。
+	 * 该处的beanName必须是正式名，如果是alias则在调用该方法前需要将alias转换成正式名
 	 */
 	boolean containsSingleton(String beanName);
 
@@ -108,6 +119,7 @@ public interface SingletonBeanRegistry {
 	 * @see #registerSingleton
 	 * @see org.springframework.beans.factory.support.BeanDefinitionRegistry#getBeanDefinitionNames
 	 * @see org.springframework.beans.factory.ListableBeanFactory#getBeanDefinitionNames
+	 * 获取所有注册的单例，不包括没有初始化的单例beanDefinition。
 	 */
 	String[] getSingletonNames();
 
@@ -122,6 +134,7 @@ public interface SingletonBeanRegistry {
 	 * @see #registerSingleton
 	 * @see org.springframework.beans.factory.support.BeanDefinitionRegistry#getBeanDefinitionCount
 	 * @see org.springframework.beans.factory.ListableBeanFactory#getBeanDefinitionCount
+	 * 获取所有注册的单例的数量，不包括没有初始化的单例beanDefinition。
 	 */
 	int getSingletonCount();
 
@@ -129,6 +142,7 @@ public interface SingletonBeanRegistry {
 	 * Return the singleton mutex used by this registry (for external collaborators).
 	 * @return the mutex object (never {@code null})
 	 * @since 4.2
+	 * 获取用于保证单例注册同步的互斥锁
 	 */
 	Object getSingletonMutex();
 

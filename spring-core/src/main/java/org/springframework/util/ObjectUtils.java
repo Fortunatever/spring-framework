@@ -324,6 +324,7 @@ public abstract class ObjectUtils {
 		if (o1.equals(o2)) {
 			return true;
 		}
+		//isArray()是native方法
 		if (o1.getClass().isArray() && o2.getClass().isArray()) {
 			return arrayEquals(o1, o2);
 		}

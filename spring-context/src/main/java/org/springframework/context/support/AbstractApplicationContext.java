@@ -244,6 +244,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * Create a new AbstractApplicationContext with no parent.
 	 */
 	public AbstractApplicationContext() {
+		//获取资源模式解析器
 		this.resourcePatternResolver = getResourcePatternResolver();
 	}
 
@@ -372,6 +373,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * implementations cannot publish events.
 	 * @param event the event to publish (may be application-specific or a
 	 * standard framework event)
+	 * listener的初始化在MessageSource之后，因此我们不能够在MessageSource的实现中发布事件
 	 */
 	@Override
 	public void publishEvent(ApplicationEvent event) {

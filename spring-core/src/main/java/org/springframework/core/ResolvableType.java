@@ -26,11 +26,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.IdentityHashMap;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.*;
 
 import org.springframework.core.SerializableTypeWrapper.FieldTypeProvider;
 import org.springframework.core.SerializableTypeWrapper.MethodParameterTypeProvider;
@@ -110,12 +106,14 @@ public class ResolvableType implements Serializable {
 	 * The {@code VariableResolver} to use or {@code null} if no resolver is available.
 	 */
 	@Nullable
+	//变量解析器
 	private final VariableResolver variableResolver;
 
 	/**
 	 * The component type for an array or {@code null} if the type should be deduced.
 	 */
 	@Nullable
+	//数组元素的类型
 	private final ResolvableType componentType;
 
 	@Nullable
@@ -125,12 +123,15 @@ public class ResolvableType implements Serializable {
 	private Class<?> resolved;
 
 	@Nullable
+	//父类信息
 	private volatile ResolvableType superType;
 
 	@Nullable
+	//接口信息
 	private volatile ResolvableType[] interfaces;
 
 	@Nullable
+	//泛型信息
 	private volatile ResolvableType[] generics;
 
 
@@ -213,6 +214,7 @@ public class ResolvableType implements Serializable {
 		}
 		Type rawType = this.type;
 		if (rawType instanceof ParameterizedType) {
+			//如果是参数化类型，则返回
 			rawType = ((ParameterizedType) rawType).getRawType();
 		}
 		return (rawType instanceof Class ? (Class<?>) rawType : null);
@@ -1624,24 +1626,32 @@ public class ResolvableType implements Serializable {
 		 * Return {@code true} if this bounds is assignable to all the specified types.
 		 * @param types the types to test against
 		 * @return {@code true} if this bounds is assignable to all types
+		 * 返回当前的bounds(ResolvableType[])都属于ResolvableType(ResolvableType[])
 		 */
 		public boolean isAssignableFrom(ResolvableType... types) {
 			for (ResolvableType bound : this.bounds) {
+				//遍历边界
 				for (ResolvableType type : types) {
+					//遍历types
 					if (!isAssignable(bound, type)) {
+						//如果不匹配则返回false
 						return false;
 					}
 				}
 			}
+			//程序运行到这里表示所有类型都没有越界，所以返回true
 			return true;
 		}
 
 		private boolean isAssignable(ResolvableType source, ResolvableType from) {
+			//如果当前source泛型通配符是上界通配符，则返回source.isAssignableFrom(from)，
+			//否则from.isAssignableFrom(source)
 			return (this.kind == Kind.UPPER ? source.isAssignableFrom(from) : from.isAssignableFrom(source));
 		}
 
 		/**
 		 * Return the underlying bounds.
+		 * 返回通配符泛型的边界
 		 */
 		public ResolvableType[] getBounds() {
 			return this.bounds;
@@ -1657,9 +1667,12 @@ public class ResolvableType implements Serializable {
 		public static WildcardBounds get(ResolvableType type) {
 			ResolvableType resolveToWildcard = type;
 			while (!(resolveToWildcard.getType() instanceof WildcardType)) {
+				//如果当前类型不是通配符类型，则继续循环
 				if (resolveToWildcard == NONE) {
+					//如果当前类型为NONE，则返回null
 					return null;
 				}
+				//解析当前类型
 				resolveToWildcard = resolveToWildcard.resolveType();
 			}
 			WildcardType wildcardType = (WildcardType) resolveToWildcard.type;
@@ -1674,6 +1687,7 @@ public class ResolvableType implements Serializable {
 
 		/**
 		 * The various kinds of bounds.
+		 * 用于表示当前通配符是上界还是下界通配符
 		 */
 		enum Kind {UPPER, LOWER}
 	}

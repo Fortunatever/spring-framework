@@ -49,9 +49,9 @@ public class DefaultResourceLoader implements ResourceLoader {
 
 	@Nullable
 	private ClassLoader classLoader;
-
+	//协议解析器
 	private final Set<ProtocolResolver> protocolResolvers = new LinkedHashSet<>(4);
-
+	//资源缓存
 	private final Map<Class<?>, Map<Resource, ?>> resourceCaches = new ConcurrentHashMap<>(4);
 
 
@@ -94,6 +94,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 	@Override
 	@Nullable
 	public ClassLoader getClassLoader() {
+		//获取当前类的类加载器
 		return (this.classLoader != null ? this.classLoader : ClassUtils.getDefaultClassLoader());
 	}
 
